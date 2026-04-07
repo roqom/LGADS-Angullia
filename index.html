@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ads Display</title>
+  <style>
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      overflow: hidden;
+    }
+
+    #stage {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: black;
+    }
+
+    .media {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+
+    .media.active {
+      opacity: 1;
+    }
+
+    #message {
+      color: white;
+      font-family: Arial, sans-serif;
+      font-size: 24px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  </style>
+</head>
+<body>
+  <div id="stage">
+    <div id="message">Loading playlist...</div>
+  </div>
+
+  <script>
+    const stage = document.getElementById("stage");
+    const message = document.getElementById("message");
+
+    let playlist = [];
+    let currentIndex = 0;
+    let currentEl = null;
+    let advanceTimer = null;
+
+    async function loadPlaylist() {
+      try {
+        const res = await fetch("playlist.json?_=" + Date.now());
+        playlist = await res.json();
+
+        if (!Array.isArray(playlist) || playlist.length === 0) {
+          message.textContent = "No media found.";
+          return;
+        }
+
+        if (message) message.remove();
+        playCurrent();
+        setInterval(refreshPlaylist, 60000);
+      } catch (err) {
+        message.textContent = "Failed to load playlist.";
+      }
+    }
+
+    function clearAdvanceTimer() {
+      if (advanceTimer) {
+        clearTimeout(advanceTimer);
+        advanceTimer = null;
+      }
+    }
+
+    function cleanupOldMedia(oldEl) {
+      if (!oldEl) return;
+      oldEl.classList.remove("active");
+      setTimeout(() => {
+        if (oldEl.parentNode) oldEl.parentNode.removeChild(oldEl);
+      }, 900);
+    }
+
+    function nextItem() {
+      currentIndex = (currentIndex + 1) % playlist.length;
+      playCurrent();
+    }
+
+    function playCurrent() {
+      clearAdvanceTimer();
+
+      if (!playlist.length) return;
+      const item = playlist[currentIndex];
+
+      let el;
+
+      if (item.type === "video") {
+        el = document.createElement("video");
+        el.src = item.src + "?_=" + Date.now();
+        el.className = "media";
+        el.autoplay = true;
+        el.muted = true;
+        el.playsInline = true;
+        el.preload = "auto";
+
+        el.onended = () => nextItem();
+        el.onerror = () => nextItem();
+
+        el.onloadeddata = () => {
+          stage.appendChild(el);
+          requestAnimationFrame(() => el.classList.add("active"));
+          cleanupOldMedia(currentEl);
+          currentEl = el;
+        };
+      } else {
+        el = document.createElement("img");
+        el.src = item.src + "?_=" + Date.now();
+        el.className = "media";
+
+        el.onload = () => {
+          stage.appendChild(el);
+          requestAnimationFrame(() => el.classList.add("active"));
+          cleanupOldMedia(currentEl);
+          currentEl = el;
+
+          const duration = Number(item.duration) || 8000;
+          advanceTimer = setTimeout(nextItem, duration);
+        };
+
+        el.onerror = () => nextItem();
+      }
+    }
+
+    async function refreshPlaylist() {
+      try {
+        const res = await fetch("playlist.json?_=" + Date.now());
+        const latest = await res.json();
+
+        if (Array.isArray(latest) && latest.length > 0) {
+          playlist = latest;
+          if (currentIndex >= playlist.length) currentIndex = 0;
+        }
+      } catch (err) {
+        // keep running existing playlist
+      }
+    }
+
+    loadPlaylist();
+  </script>
+</body>
+</html>
