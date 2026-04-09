@@ -18,5 +18,10 @@
       "type": "image",
       "src": "media/04.png",
       "duration": 16000
+    },
+    {
+      "type": "image",
+      "src": "media/05.png",
+      "duration": 16000
     }
   ]
