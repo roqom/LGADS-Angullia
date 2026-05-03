@@ -106,7 +106,7 @@
 
       if (item.type === "video") {
         el = document.createElement("video");
-        el.src = item.src + "?_=" + Date.now();
+        el.src = item.src;
         el.className = "media";
         el.autoplay = true;
         el.muted = true;
@@ -124,7 +124,7 @@
         };
       } else {
         el = document.createElement("img");
-        el.src = item.src + "?_=" + Date.now();
+        el.src = item.src;
         el.className = "media";
 
         el.onload = () => {
