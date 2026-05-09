@@ -6,6 +6,11 @@
     },
     {
       "type": "image",
+      "src": "media/02.png",
+      "duration": 16000
+    },
+    {
+      "type": "image",
       "src": "media/03.png",
       "duration": 16000
     },
@@ -22,21 +27,6 @@
     {
       "type": "image",
       "src": "media/06.png",
-      "duration": 16000
-    },
-    {
-      "type": "image",
-      "src": "media/07.png",
-      "duration": 16000
-    },
-    {
-      "type": "image",
-      "src": "media/08.png",
-      "duration": 16000
-    },
-    {
-      "type": "image",
-      "src": "media/09.png",
       "duration": 16000
     }
   ]
