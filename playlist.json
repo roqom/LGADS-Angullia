@@ -24,9 +24,14 @@
       "src": "media/05.png",
       "duration": 16000
     },
-    {
+     {
       "type": "image",
       "src": "media/06.png",
+      "duration": 16000
+    },
+    {
+      "type": "image",
+      "src": "media/07.png",
       "duration": 16000
     }
   ]
